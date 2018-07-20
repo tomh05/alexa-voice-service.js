@@ -1,10 +1,13 @@
 const AVS = require('../');
+const TestManager = require('./testManager');
 const player = AVS.Player;
+
+const testManager = new TestManager();
 
 const avs = new AVS({
   debug: true,
-  clientId: 'amzn1.application-oa2-client.696ab90fc5844fdbb8efc17394a79c00',
-  deviceId: 'test_device',
+  clientId: 'amzn1.application-oa2-client.24610b975ef74e57a9a32307d35c28fc',
+  deviceId: 'testdevice',
   deviceSerialNumber: 123,
   redirectUri: `https://${window.location.host}/authresponse`
 });
@@ -15,11 +18,13 @@ avs.on(AVS.EventTypes.TOKEN_SET, () => {
   logoutBtn.disabled = false;
   startRecording.disabled = false;
   stopRecording.disabled = true;
+  log("Token Set");
 });
 
 avs.on(AVS.EventTypes.RECORD_START, () => {
   startRecording.disabled = true;
   stopRecording.disabled = false;
+  log("Record Start");
 });
 
 avs.on(AVS.EventTypes.RECORD_STOP, () => {
@@ -81,7 +86,8 @@ avs.player.on(AVS.Player.EventTypes.REPLAY, () => {
 });
 
 function log(message) {
-  logOutput.innerHTML = `<li>LOG: ${message}</li>` + logOutput.innerHTML;
+  logOutput.innerHTML = `<pre>${message}</pre>` + logOutput.innerHTML;
+  //logOutput.innerHTML = `<li>LOG: <pre>${message}</pre></li>` + logOutput.innerHTML;
 }
 
 function logError(error) {
@@ -110,14 +116,21 @@ function logAudioBlob(blob, message) {
 const loginBtn = document.getElementById('login');
 const logoutBtn = document.getElementById('logout');
 const logOutput = document.getElementById('log');
+const setLanguageBtn = document.getElementById('setLanguage');
 const audioLogOutput = document.getElementById('audioLog');
 const startRecording = document.getElementById('startRecording');
 const stopRecording = document.getElementById('stopRecording');
+const audioFileSelector = document.getElementById('audioFileSelector');
 const stopAudio = document.getElementById('stopAudio');
 const pauseAudio = document.getElementById('pauseAudio');
 const playAudio = document.getElementById('playAudio');
 const replayAudio = document.getElementById('replayAudio');
 
+const addTest = document.getElementById('addTest');
+console.log('playAudio is',playAudio);
+console.log('addTest is',addTest);
+
+addTest.addEventListener('click', () => testManager.addTest());
 /*
 // If using client secret
 avs.getCodeFromUrl()
@@ -169,161 +182,215 @@ function logout() {
   });
 }
 
+
+setLanguageBtn.addEventListener('click', setLanguage);
+
+function setLanguage() {
+  return avs.setLanguage()
+  .then(() => {
+      console.log('language set!');
+  });
+}
+
 startRecording.addEventListener('click', () => {
   avs.startRecording();
 });
 
-stopRecording.addEventListener('click', () => {
-  avs.stopRecording().then(dataView => {
-    avs.player.emptyQueue()
-    .then(() => avs.audioToBlob(dataView))
-    .then(blob => logAudioBlob(blob, 'VOICE'))
-    .then(() => avs.player.enqueue(dataView))
-    .then(() => avs.player.play())
-    .catch(error => {
-      console.error(error);
-    });
 
-        var ab = false;
-    //sendBlob(blob);
-    avs.sendAudio(dataView)
-    .then(({xhr, response}) => {
 
-      var promises = [];
-      var audioMap = {};
-      var directives = null;
 
-      if (response.multipart.length) {
-        response.multipart.forEach(multipart => {
-          let body = multipart.body;
-          if (multipart.headers && multipart.headers['Content-Type'] === 'application/json') {
-            try {
-              body = JSON.parse(body);
-            } catch(error) {
-              console.error(error);
-            }
 
-            if (body && body.messageBody && body.messageBody.directives) {
-              directives = body.messageBody.directives;
-            }
-          } else if (multipart.headers['Content-Type'] === 'audio/mpeg') {
-            const start = multipart.meta.body.byteOffset.start;
-            const end = multipart.meta.body.byteOffset.end;
-
-            /**
-             * Not sure if bug in buffer module or in http message parser
-             * because it's joining arraybuffers so I have to this to
-             * seperate them out.
-             */
-            var slicedBody = xhr.response.slice(start, end);
-
-            //promises.push(avs.player.enqueue(slicedBody));
-            audioMap[multipart.headers['Content-ID']] = slicedBody;
-          }
-        });
-
-        function findAudioFromContentId(contentId) {
-          contentId = contentId.replace('cid:', '');
-          for (var key in audioMap) {
-            if (key.indexOf(contentId) > -1) {
-              return audioMap[key];
-            }
-          }
-        }
-
-        directives.forEach(directive => {
-          if (directive.namespace === 'SpeechSynthesizer') {
-            if (directive.name === 'speak') {
-              const contentId = directive.payload.audioContent;
-              const audio = findAudioFromContentId(contentId);
-              if (audio) {
-                avs.audioToBlob(audio)
-                .then(blob => logAudioBlob(blob, 'RESPONSE'));
-                promises.push(avs.player.enqueue(audio));
-              }
-            }
-          } else if (directive.namespace === 'AudioPlayer') {
-            if (directive.name === 'play') {
-              const streams = directive.payload.audioItem.streams;
-              streams.forEach(stream => {
-                const streamUrl = stream.streamUrl;
-
-                const audio = findAudioFromContentId(streamUrl);
-                if (audio) {
-                  avs.audioToBlob(audio)
-                  .then(blob => logAudioBlob(blob, 'RESPONSE'));
-                  promises.push(avs.player.enqueue(audio));
-                } else if (streamUrl.indexOf('http') > -1) {
-                  const xhr = new XMLHttpRequest();
-                  const url = `/parse-m3u?url=${streamUrl.replace(/!.*$/, '')}`;
-                  xhr.open('GET', url, true);
-                  xhr.responseType = 'json';
-                  xhr.onload = (event) => {
-                    const urls = event.currentTarget.response;
-
-                    urls.forEach(url => {
-                      avs.player.enqueue(url);
-                    });
-                  };
-                  xhr.send();
-                }
-              });
-            } else if (directive.namespace === 'SpeechRecognizer') {
-              if (directive.name === 'listen') {
-                const timeout = directive.payload.timeoutIntervalInMillis;
-                // enable mic
-              }
-            }
-          }
-        });
-
-        if (promises.length) {
-          Promise.all(promises)
-         .then(() => {
-            avs.player.playQueue()
-          });
-        }
-      }
-
-    })
-    .catch(error => {
-      console.error(error);
-    });
-  });
+stopRecording.addEventListener('click', (e) => {
+    // use the 1st file from the list
+    return avs.stopRecording().then(processRecording);
 });
 
+
+audioFileSelector.addEventListener('change', (e) => {
+    const file = e.target.files[0]; // FileList object
+    console.log('file is', file);
+
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        console.log('loading done');
+        return processRecording ( new DataView(ev.target.result));
+        /*
+        avs.fileToBuffer(ev.target.result).then( (audioBuffer) => {
+            
+            return processRecording ( new DataView(audioBuffer));
+
+    })
+        */
+    };
+
+	reader.readAsArrayBuffer(e.target.files[0]);
+});
+    
+    
+ function processRecording (dataView) {
+     console.log('dataview is', dataView);
+
+     avs.player.emptyQueue()
+         .then(() => avs.audioToBlob(dataView))
+         .then(blob => logAudioBlob(blob, 'VOICE'))
+         .then(() => avs.player.enqueue(dataView)) // play it back to the user
+         .then(() => avs.player.play())
+         .catch(error => {
+             console.error(error);
+         });
+
+     var ab = false;
+     //sendBlob(blob);
+     avs.sendAudio(dataView)
+         .then(({xhr, response}) => {
+
+             var promises = [];
+             var audioMap = {};
+             var directives = [];
+
+             if (response.multipart.length) {
+                 response.multipart.forEach(multipart => {
+                     let body = multipart.body;
+                     if (multipart.headers && multipart.headers['Content-Type'].includes('application/json')) {
+                         try {
+                             body = JSON.parse(body);
+                             log(JSON.stringify(body, null, 4));
+                         } catch(error) {
+                             console.error(error);
+                         }
+
+                         console.log('context is',body);
+                         if (body && body.directive) {
+                             directives.push(body.directive);
+                         }
+                     } else if (multipart.headers['Content-Type'] === 'application/octet-stream') {
+                         console.log('got octet!');
+                         const start = multipart.meta.body.byteOffset.start;
+                         const end = multipart.meta.body.byteOffset.end;
+
+                         /**
+                          * Not sure if bug in buffer module or in http message parser
+                          * because it's joining arraybuffers so I have to this to
+                          * seperate them out.
+                          */
+                         var slicedBody = xhr.response.slice(start, end);
+
+                         //promises.push(avs.player.enqueue(slicedBody));
+                         audioMap[multipart.headers['Content-ID']] = slicedBody;
+                         console.log('audiomap is', audioMap);
+                     } else {
+                         log('unrecognised header:' + multipart.headers['Content-Type']);
+
+                     }
+                 });
+
+                 function findAudioFromContentId(contentId) {
+                     contentId = contentId.replace('cid:', '');
+                     for (var key in audioMap) {
+                         if (key.indexOf(contentId) > -1) {
+                             return audioMap[key];
+                         }
+                     }
+                 }
+
+                 console.log('directive', directives);
+                 directives.forEach(directive => {
+                     if (directive.header.namespace === 'SpeechSynthesizer') {
+                         if (directive.header.name === 'Speak') {
+                             console.log('got speeech!');
+                             const contentId = directive.payload.url;
+                             const audio = findAudioFromContentId(contentId);
+                             if (audio) {
+                                 console.log('got audio!');
+                                 avs.audioToBlob(audio)
+                                     .then(blob => logAudioBlob(blob, 'RESPONSE'));
+                                 promises.push(avs.player.enqueue(audio));
+                             }
+                         }
+                     } else if (directive.header.namespace === 'AudioPlayer') {
+                         if (directive.header.name === 'play') {
+                             const streams = directive.payload.audioItem.streams;
+                             streams.forEach(stream => {
+                                 const streamUrl = stream.streamUrl;
+
+                                 const audio = findAudioFromContentId(streamUrl);
+                                 if (audio) {
+                                     avs.audioToBlob(audio)
+                                         .then(blob => logAudioBlob(blob, 'RESPONSE'));
+                                     promises.push(avs.player.enqueue(audio));
+                                 } else if (streamUrl.indexOf('http') > -1) {
+                                     const xhr = new XMLHttpRequest();
+                                     //const url = `/parse-m3u?url=${streamUrl.replace(/!.*$/, '')}`;
+                                     xhr.open('GET', url, true);
+                                     xhr.responseType = 'json';
+                                     xhr.onload = (event) => {
+                                         const urls = event.currentTarget.response;
+
+                                         urls.forEach(url => {
+                                             avs.player.enqueue(url);
+                                         });
+                                     };
+                                     xhr.send();
+                                 }
+                             });
+                         }
+                     } else if (directive.header.namespace === 'SpeechRecognizer') {
+                         if (directive.header.name === 'ExpectSpeech') {
+                             const timeout = directive.payload.timeoutInMilliseconds;
+                             // enable mic
+                             console.log('expecting response!');
+                             avs.startRecording();
+                         }
+                     } else {
+                         console.warn('unhandled directive:', directive); 
+                     }
+                 });
+
+                 if (promises.length) {
+                     Promise.all(promises)
+                         .then(() => {
+                             avs.player.playQueue()
+                         });
+                 }
+             }
+         })
+         .catch(error => {
+             console.error(error);
+         });
+ }
+
 stopAudio.addEventListener('click', (event) => {
-  avs.player.stop();
+    avs.player.stop();
 });
 
 pauseAudio.addEventListener('click', (event) => {
-  avs.player.pause();
+    avs.player.pause();
 });
 
 playAudio.addEventListener('click', (event) => {
-  avs.player.play();
+    avs.player.play();
 });
 
 replayAudio.addEventListener('click', (event) => {
-  avs.player.replay();
+    avs.player.replay();
 });
 
 function sendBlob(blob) {
-  const xhr = new XMLHttpRequest();
-  const fd = new FormData();
+    const xhr = new XMLHttpRequest();
+    const fd = new FormData();
 
-  fd.append('fname', 'audio.wav');
-  fd.append('data', blob);
+    fd.append('fname', 'audio.wav');
+    fd.append('data', blob);
 
-  xhr.open('POST', 'http://localhost:5555/audio', true);
-  xhr.responseType = 'blob';
+    xhr.open('POST', 'http://localhost:5555/audio', true);
+    xhr.responseType = 'blob';
 
-  xhr.onload = (event) => {
-    if (xhr.status == 200) {
-      console.log(xhr.response);
-      //const responseBlob = new Blob([xhr.response], {type: 'audio/mp3'});
-    }
-  };
+    xhr.onload = (event) => {
+        if (xhr.status == 200) {
+            console.log(xhr.response);
+            //const responseBlob = new Blob([xhr.response], {type: 'audio/mp3'});
+        }
+    };
 
-  xhr.send(fd);
+    xhr.send(fd);
 }

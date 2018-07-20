@@ -7,15 +7,17 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "watch": "./node_modules/watchify/bin/cmd.js ./index.js -o ./index.bundle.js -v -d -t [ babelify ]",
-    "build": "./node_modules/browseify/bin/cmd.js ./index.js -o ./index.bundle.js -v -d -t [ babelify ]"
+    "build": "./node_modules/browserify/bin/cmd.js ./index.js -o ./index.bundle.js -v -d -t [ babelify ]"
   },
   "author": "Miguel Mota <hello@miguelmota.com> (http://www.miguelmota.com/)",
   "license": "MIT",
   "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
     "body-parser": "^1.15.0",
     "cors": "^2.7.1",
     "express": "^4.13.4",
     "http-message-parser": "0.0.20",
+    "jquery": "^3.3.1",
     "multer": "^1.1.0",
     "request": "^2.72.0"
   },
