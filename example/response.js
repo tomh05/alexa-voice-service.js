@@ -2,11 +2,11 @@
 import $ from 'jquery';
 
 class Response {
-    constructor(id) {
-
+    constructor(id, payload, audio) {
         this.id = id;
+        this.payload = payload;
+        this.audio = audio;
     }
-
 
     createDomElements(target) {
         target.append(`
@@ -15,10 +15,18 @@ class Response {
             </div>
             `);
 
-        this.rootElement = $(`.response-${this.id}`);
+        this.rootElement = target.find(`.response-${this.id}`);
 
         this.playBtn = this.rootElement.find('.play');
         this.playBtn.click( () => {
+
+            if (this.audio !== null) {
+                console.log('playing',this.audio);
+                const copyOfAudio = new DataView(this.audio.slice(0));
+                window.avs.player.enqueue(copyOfAudio) // play it back to the user
+                    .then(() => window.avs.player.play());
+            }
+
 
         });
 

@@ -3,17 +3,17 @@ body {
 }
 
 #log {
-  display: block;
-  max-height: 300px;
-  overflow: auto;
-  border: 1px solid #F7F7F7;
+    display: block;
+    max-height: 300px;
+    overflow: auto;
+    border: 1px solid #F7F7F7;
 }
 
 #audioLog {
-  display: block;
-  max-height: 300px;
-  overflow: auto;
-  border: 1px solid #F7F7F7;
+    display: block;
+    max-height: 300px;
+    overflow: auto;
+    border: 1px solid #F7F7F7;
 }
 
 .test-block,
@@ -31,7 +31,9 @@ body {
 }
 
 .test-interaction-block,
-.test-block .addInteractionBtn {
+.test-block .addInteractionBtn,
+.test-block .error
+{
     background-color: #DDDDDD;
     border-radius: 5px;
     margin-top: 10px;
@@ -40,6 +42,25 @@ body {
     box-sizing: border-box;
 }
 
+
+.test-block .error {
+    background-color: #f8c668;
+}
+
+.skipped {
+    opacity: 0.5;
+}
+
+button {
+    border-radius: 5px;
+    padding: 10px;
+
+}
+
+.recordButton {
+    background: red;
+    color: white;
+}
 
 .test-block .addInteractionBtn,
 #addTest {
@@ -65,5 +86,45 @@ body {
 
 }
 
+.loader{
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+}
+.loader:after {
+    content: " ";
+    display: block;
+    width: 18px;
+    height: 18px;
+    margin: 2px;
+    border-radius: 50%;
+    border: 5px solid #fff;
+    border-color: #333 transparent #333 transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
+.loading {
+    background-image: 
+    repeating-linear-gradient(
+    -45deg, 
+    transparent, 
+    transparent 1rem,
+    #eee 1rem,
+    #eee 2rem
+    );
+    background-size: 200% 200%;
+    animation: barberpole 15s linear infinite;
 
+}
+@keyframes barberpole {
+    100% {
+        background-position: 100% 100%;
+    }

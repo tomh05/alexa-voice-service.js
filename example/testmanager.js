@@ -4,7 +4,6 @@ import $ from 'jquery';
 
 class TestManager {
     constructor(options = {}) {
-
         this.tests = [];
         this.testManagerDiv = $('#test-blocks');
         this.addTest();
