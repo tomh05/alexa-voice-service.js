@@ -30,7 +30,21 @@ body {
 
 }
 
-.test-interaction-block,
+.test-interaction-block .outgoing {
+    background-color: #FFFFFF;
+    border-radius: 5px;
+    margin-top: 10px;
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+
+    margin-left: 32px;
+    margin-right: 32px;
+
+}
+
+
+
 .test-block .addInteractionBtn,
 .test-block .error
 {
@@ -40,6 +54,9 @@ body {
     padding: 10px;
     width: 100%;
     box-sizing: border-box;
+    position: relative;
+
+
 }
 
 
@@ -73,12 +90,59 @@ button {
 }
 
 
+.test-interaction-block .outgoing:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 24px solid transparent;
+	border-right-color: #FFFFFF;
+	border-left: 0;
+	border-top: 0;
+	margin-top: -12px;
+	margin-left: -24px;
+}
+
+
 .response-block {
     background-color: #EEEEEE;
     border-radius: 5px;
     margin: 10px;
     padding: 10px;
+    width: 30%;
 }
+
+
+
+
+
+.responses{
+    position: relative;
+    background-color: #00aabb;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-left: 32px;
+    margin-right: 32px;
+    padding: 3px;
+    min-height: 32px;
+}
+.responses:after {
+	content: '';
+	position: absolute;
+	right: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 24px solid transparent;
+	border-left-color: #00aabb;
+	border-right: 0;
+	border-top: 0;
+	margin-top: -12px;
+	margin-right: -24px;
+}
+
 
 
 .hint {

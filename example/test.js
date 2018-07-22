@@ -9,6 +9,7 @@ class Test {
     }
 
     addInteraction() {
+        console.log('adding interaction');
         const newId = this.testInteractions.length;
         const newInteraction = new TestInteraction(newId);
 
@@ -18,7 +19,7 @@ class Test {
 
     createDomElements(target) {
         target.append(`
-            <div class="test-block .test-${this.id}">
+            <div class="test-block test-${this.id}">
             <div>
             <h1 contentEditable="true">Test_${this.id}</h1>
             <span class="hint">(click to rename)</span>
@@ -34,6 +35,7 @@ class Test {
         this.interactionsBlock = this.rootElement.find('.test-interactions');
 
         this.addInteractionBtn = this.rootElement.find('.addInteractionBtn');
+        console.log(this.rootElement);
         this.addInteractionBtn.click( () => {
             this.addInteraction();
         });
@@ -55,8 +57,12 @@ class Test {
         this.rootElement.find('.error').html('');
     }
 
+    markSkipped() {
+        this.rootElement.addClass('skipped');
+    }
     run() {
 
+        this.rootElement.removeClass('skipped');
         console.log('running test', this.id);
         if (this.testInteractions.length < 1) {
             console.error('no interactions to test');
@@ -66,7 +72,7 @@ class Test {
         this.clearPreviousTestResults();
 
 
-        this.testInteractions.reduce( (previousInteraction, currentInteraction, index) => {
+        return this.testInteractions.reduce( (previousInteraction, currentInteraction, index) => {
             console.log('previousInteraction is', previousInteraction);
             return previousInteraction.then( (result) => 
                 {
@@ -84,6 +90,7 @@ class Test {
                         for (let i = index; i < this.testInteractions.length; i++) {
                             this.testInteractions[i].markSkipped();
                         }
+                        return Promise.reject('ALEXA_ENDED_CONVERSATION');
                     } else {
                         console.log('uncaught');
                     }
@@ -94,6 +101,11 @@ class Test {
             .then((finalResult) => {
                 if (finalResult && finalResult.expectingSpeech === true) {
                         this.interactionsBlock.append(`<div class='error'><i class="fas fa-exclamation-triangle"></i> Alexa expected you to respond, but you didn't provide a response.</div>`);
+                            return Promise.reject();
+                        return Promise.reject('NOT_ENOUGH_INTERACTIONS');
+                } else {
+
+                            return Promise.resolve();
                 }
             });
     }

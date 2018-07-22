@@ -1,8 +1,11 @@
 const AVS = require('../');
 const TestManager = require('./testManager');
 const player = AVS.Player;
+import $ from 'jquery';
 
-const testManager = new TestManager();
+$(document).ready(() => {
+    console.log('ready!');
+    const testManager = new TestManager();
 
 const avs = new AVS({
   debug: true,
@@ -394,3 +397,5 @@ function sendBlob(blob) {
 
     xhr.send(fd);
 }
+
+});

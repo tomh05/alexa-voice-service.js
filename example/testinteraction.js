@@ -15,16 +15,17 @@ class TestInteraction {
     createDomElements(target) {
         target.append(`
             <div class="test-interaction-block test-interaction-${this.id}">
+            <div class="outgoing">
             <div class="header">
-
-            <h2 contentEditable="true">Interaction_${this.id}</h2>
-            <span class="hint">(click to rename)</span>
+                <h2 contentEditable="true">Interaction_${this.id}</h2>
+                <span class="hint">(click to rename)</span>
             </div>
             <p><button class="recordButton">${this.recordButtonText}</button>
             or
             <input class="uploadAudio" type="file" />
             </p>
             <button class="playButton" disabled><i class="fas fa-play"></i> Play audio</button>
+            </div>
             <div class="responses"> </div>
             </div>
             `);
@@ -184,10 +185,13 @@ class TestInteraction {
                                 }
                             }
                         } else if (directive.header.namespace === 'AudioPlayer') {
-                            if (directive.header.name === 'play') {
-                                const streams = directive.payload.audioItem.streams;
-                                streams.forEach(stream => {
-                                    const streamUrl = stream.streamUrl;
+                            console.log('got audio player request')
+                            console.log('directive is', directive);
+                            if (directive.header.name === 'Play') {
+                                console.log('got play request');
+                                const stream = directive.payload.audioItem.stream;
+                                //streams.forEach(stream => {
+                                    const streamUrl = stream.url;
 
                                     const audio = findAudioFromContentId(streamUrl);
                                     if (audio) {
@@ -197,6 +201,7 @@ class TestInteraction {
                                     } else if (streamUrl.indexOf('http') > -1) {
                                         const xhr = new XMLHttpRequest();
                                         //const url = `/parse-m3u?url=${streamUrl.replace(/!.*$/, '')}`;
+                                        /*
                                         xhr.open('GET', url, true);
                                         xhr.responseType = 'json';
                                         xhr.onload = (event) => {
@@ -207,17 +212,14 @@ class TestInteraction {
                                             });
                                         };
                                         xhr.send();
+                                        */
                                     }
-                                });
+                                //});
                             }
                         } else if (directive.header.namespace === 'SpeechRecognizer') {
                             if (directive.header.name === 'ExpectSpeech') {
                                 const timeout = directive.payload.timeoutInMilliseconds;
-                                // enable mic
-                                console.log('expecting response!');
-                                //return Promise.resolve('ExpectSpeech');
-                                expectingSpeech = true
-                                //avs.startRecording();
+                                expectingSpeech = true;
                             }
                         } else {
                             console.warn('unhandled directive:', directive); 
