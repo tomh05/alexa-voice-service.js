@@ -15,7 +15,7 @@ class TestInteraction {
     createDomElements(target) {
         target.append(`
             <div class="test-interaction-block test-interaction-${this.id}">
-            <div class="outgoing">
+            <div class="outgoing bubble">
             <div class="header">
                 <h2 contentEditable="true">Interaction_${this.id}</h2>
                 <span class="hint">(click to rename)</span>
@@ -26,7 +26,7 @@ class TestInteraction {
             </p>
             <button class="playButton" disabled><i class="fas fa-play"></i> Play audio</button>
             </div>
-            <div class="responses"> </div>
+            <div class="responses bubble"> </div>
             </div>
             `);
 
@@ -102,11 +102,6 @@ class TestInteraction {
         newResponse.createDomElements(this.responseDiv);
         this.responses.push(newResponse);
     }
-
-    displayError(message) {
-        this.responseDiv.html(`<p>Error: ${message}</p>`);
-    }
-
 
     cleanupPreviousRun() {
         this.deleteAllResponses();

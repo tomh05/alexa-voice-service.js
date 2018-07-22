@@ -18,45 +18,31 @@ body {
 
 .test-block,
 #addTest{
-    background-color: #CCCCCC;
-    border-radius: 10px;
     box-sizing: border-box;
     margin-top: 20px;
     padding: 10px;
     width: 100%;
+    border-bottom: 5px #CCC solid;
 }
+
+
+
 .test-block h1 {
     display: inline;
 
 }
 
 .test-interaction-block .outgoing {
-    background-color: #FFFFFF;
-    border-radius: 5px;
-    margin-top: 10px;
+    background-color: #ddd;
     padding: 10px;
     box-sizing: border-box;
-    position: relative;
-
-    margin-left: 32px;
-    margin-right: 32px;
 
 }
 
 
 
-.test-block .addInteractionBtn,
-.test-block .error
-{
-    background-color: #DDDDDD;
-    border-radius: 5px;
-    margin-top: 10px;
-    padding: 10px;
-    width: 100%;
-    box-sizing: border-box;
-    position: relative;
-
-
+.test-block .addInteractionBtn {
+    width: calc(100% - 64px);
 }
 
 
@@ -82,6 +68,7 @@ button {
 .test-block .addInteractionBtn,
 #addTest {
     border: #AAA 1px solid;
+    background: #CCC;
 }
 
 
@@ -98,7 +85,7 @@ button {
 	width: 0;
 	height: 0;
 	border: 24px solid transparent;
-	border-right-color: #FFFFFF;
+	border-right-color: #ddd;
 	border-left: 0;
 	border-top: 0;
 	margin-top: -12px;
@@ -114,19 +101,19 @@ button {
     width: 30%;
 }
 
-
-
-
-
-.responses{
+.bubble {
     position: relative;
-    background-color: #00aabb;
     border-radius: 5px;
-    margin-top: 10px;
     margin-left: 32px;
     margin-right: 32px;
+    margin-top: 10px;
     padding: 3px;
     min-height: 32px;
+
+}
+
+.responses{
+    background-color: #00aabb;
 }
 .responses:after {
 	content: '';

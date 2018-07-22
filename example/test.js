@@ -26,7 +26,7 @@ class Test {
             </div>
             <button class="runTestBtn">Run Test</button>
             <div class="test-interactions"> </div>
-            <button class="addInteractionBtn"> <i class="fas fa-plus-circle"></i> Add Interaction</button>
+            <button class="addInteractionBtn bubble"> <i class="fas fa-plus-circle"></i> Add Interaction</button>
 
             </div>
             `);
@@ -85,7 +85,7 @@ class Test {
                     } else if (result.expectingSpeech === false) {
                         // TODO
                         // if result doesn't include an ExpectSpeech but there is a 'next', warn user
-                        currentInteraction.rootElement.before(`<div class='error'><i class="fas fa-exclamation-triangle"></i> Alexa ended the conversation.</div>`);
+                        currentInteraction.rootElement.before(`<div class='error bubble'><i class="fas fa-exclamation-triangle"></i> Alexa ended the conversation.</div>`);
 
                         for (let i = index; i < this.testInteractions.length; i++) {
                             this.testInteractions[i].markSkipped();
@@ -100,7 +100,7 @@ class Test {
         }, Promise.resolve({expectingSpeech: true}))
             .then((finalResult) => {
                 if (finalResult && finalResult.expectingSpeech === true) {
-                        this.interactionsBlock.append(`<div class='error'><i class="fas fa-exclamation-triangle"></i> Alexa expected you to respond, but you didn't provide a response.</div>`);
+                        this.interactionsBlock.append(`<div class='error bubble'><i class="fas fa-exclamation-triangle"></i> Alexa expected you to respond, but you didn't provide a response.</div>`);
                             return Promise.reject();
                         return Promise.reject('NOT_ENOUGH_INTERACTIONS');
                 } else {
