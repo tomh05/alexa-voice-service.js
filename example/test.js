@@ -18,15 +18,24 @@ class Test {
 
     addInteraction(options) {
         if (!options) {
+            let newId = 0;
+            if (this.testInteractions.length > 0) {
+                const lastInteraction = this.testInteractions[this.testInteractions.length - 1];
+                newId = lastInteraction.id + 1;
+            }
             options = {
-                id: this.testInteractions.length
+                id: newId
             };
         }
-        console.log('adding interaction');
-        const newInteraction = new TestInteraction(options);
+        const newInteraction = new TestInteraction(this, options);
 
         newInteraction.createDomElements(this.interactionsBlock);
         this.testInteractions.push(newInteraction);
+    }
+    
+    notifyDestroyed(id) {
+        // remove the interaction with matching ID from our array
+        this.testInteractions.splice(this.testInteractions.findIndex(item => item.id === id), 1);
     }
 
     createDomElements(target) {
@@ -38,6 +47,7 @@ class Test {
             <span class="hint">(click to rename)</span>
             </div>
             <button class="runTestBtn"><i class="fas fa-vial"></i> Run Test</button>
+            <button class="delete"><i class="fas fa-trash-alt"></i></button>
             </div>
             <div class="test-interactions"> </div>
             <button class="addInteractionBtn bubble"> <i class="fas fa-plus-circle"></i> Add Interaction</button>

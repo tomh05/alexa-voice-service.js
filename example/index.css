@@ -107,6 +107,22 @@ button {
 	margin-left: -24px;
 }
 
+button.delete {
+    float: right;
+    background: #717e89;
+    border: none;
+    border-radius: 15px;
+    width: 42px;
+    height: 42px;
+    color: white;
+}
+
+.test-interactions button.delete {
+    border-radius: 10px;
+    background: #bfbfbf;
+    color: white;
+}
+
 
 .response-block {
     background-color: #EEEEEE;

@@ -3,7 +3,8 @@ import $ from 'jquery';
 import Response from './response';
 
 class TestInteraction {
-    constructor(options) {
+    constructor(parent, options) {
+        this.parent = parent;
         this.id = options.id;
         this.isRecording = false;
         this.hasAudio = false;
@@ -26,6 +27,7 @@ class TestInteraction {
             <input class="uploadAudio" type="file" />
             </p>
             <button class="playButton" disabled><i class="fas fa-play"></i> Play audio</button>
+            <button class="delete"><i class="fas fa-trash-alt"></i></button>
             </div>
             <div class="responses bubble"> </div>
             </div>
@@ -86,6 +88,20 @@ class TestInteraction {
             reader.readAsArrayBuffer(e.target.files[0]);
         });
 
+        this.deleteBtn = this.rootElement.find('.delete');
+        this.deleteBtn.click( () => {
+            if (confirm('delete interaction?')) {
+                this.destroy();
+            }
+
+});
+
+    }
+
+    destroy() {
+        this.deleteAllResponses();
+        this.rootElement.remove();
+        this.parent.notifyDestroyed(this.id);
     }
 
     processRecording(recordedData) {

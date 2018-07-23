@@ -61,10 +61,16 @@ class TestManager {
 
     addTest(options) {
         if (!options) {
-            options = {
-                id: this.tests.length
+            let newId = 0;
+            if (this.tests.length > 0) {
+                const lastTest = this.tests[this.tests.length - 1];
+                newId = lastTest.id + 1;
             }
+            options = {
+                id: newId
+            };
         }
+
         const newTest = new Test(this.testManagerDiv, options);
         //newTest.createDomElements(this.testManagerDiv);
         this.tests.push(newTest);
