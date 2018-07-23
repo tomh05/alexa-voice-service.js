@@ -12,15 +12,61 @@ class TestManager {
         this.addTest();
 
         this.runAllBtn.click(() => {
-            
-            console.log('clicky');
-            this.runAll()});
+            this.runAll();
+        });
+
+        this.saveBtn = $('#save');
+        this.saveBtn.click(() => {
+            this.exportToDownload();
+        });
+
+        this.loadBtn = $('#load');
+        this.loadBtn.click(() => {
+            console.log('clicked load button');
+            $('#upload-file').click();
+        });
+
+        $('#upload-file').change(() => {
+        console.log('uploading');
+            this.importFromUpload();
+        });
     }
 
-    addTest() {
-        const newId = this.tests.length;
-        const newTest = new Test(newId);
-        newTest.createDomElements(this.testManagerDiv);
+    exportToDownload() {
+        const downloadLink = document.createElement('a');
+        console.log('prep saving');
+        console.log('saving object', this.toObject());
+        downloadLink.href= 'data:text/plain;charset=UTF-8,' + encodeURIComponent(JSON.stringify(this.toObject()));
+        const fileName = 'test suite';
+        downloadLink.download= fileName ? fileName.replace(/\?/g,'') + '.json' : 'saved_poll_layout.json';
+        downloadLink.click();
+        downloadLink.remove();
+
+    }
+
+    importFromUpload() {
+        console.log('uploading!');
+        const newFile = $('#upload-file').prop('files')[0];
+        if (newFile) {
+            const fileReader = new FileReader();
+            fileReader.onload = () => {
+                if (fileReader.result) {
+                    const loadedData = JSON.parse(fileReader.result);
+                    this.fromObject(loadedData);
+                }
+            };
+            fileReader.readAsText(newFile);
+        }
+    }
+
+    addTest(options) {
+        if (!options) {
+            options = {
+                id: this.tests.length
+            }
+        }
+        const newTest = new Test(this.testManagerDiv, options);
+        //newTest.createDomElements(this.testManagerDiv);
         this.tests.push(newTest);
     }
 
@@ -62,10 +108,18 @@ class TestManager {
     }
 
 
+    toObject() {
+        return {
+            tests: this.tests.map( (test) => test.toObject() )
+        };
+    }
 
+    fromObject(loadedData) {
+        for (let i=0; i< loadedData.tests.length; i++) {
+            this.addTest(loadedData.tests[i]);
+        }
 
-
-
+    }
 
 }
 

@@ -3,15 +3,27 @@ const TestInteraction = require('./testinteraction');
 import $ from 'jquery';
 
 class Test {
-    constructor(id) {
-        this.id = id;
+    constructor(rootDomElement, options) {
+        this.id = options.id;
+        this.name = options.name ? options.name : `Test_${this.id}`;
+        this.createDomElements(rootDomElement);
         this.testInteractions = [];
+        
+        if (options.testInteractions) {
+            options.testInteractions.map((interaction) => this.addInteraction(interaction));
+        } else {
+            this.addInteraction();
+        }
     }
 
-    addInteraction() {
+    addInteraction(options) {
+        if (!options) {
+            options = {
+                id: this.testInteractions.length
+            };
+        }
         console.log('adding interaction');
-        const newId = this.testInteractions.length;
-        const newInteraction = new TestInteraction(newId);
+        const newInteraction = new TestInteraction(options);
 
         newInteraction.createDomElements(this.interactionsBlock);
         this.testInteractions.push(newInteraction);
@@ -20,11 +32,13 @@ class Test {
     createDomElements(target) {
         target.append(`
             <div class="test-block test-${this.id}">
+            <div class="test-header">
             <div>
-            <h1 contentEditable="true">Test_${this.id}</h1>
+            <h1 class='name' contentEditable="true">${this.name}</h1>
             <span class="hint">(click to rename)</span>
             </div>
-            <button class="runTestBtn">Run Test</button>
+            <button class="runTestBtn"><i class="fas fa-vial"></i> Run Test</button>
+            </div>
             <div class="test-interactions"> </div>
             <button class="addInteractionBtn bubble"> <i class="fas fa-plus-circle"></i> Add Interaction</button>
 
@@ -34,6 +48,11 @@ class Test {
         this.rootElement = target.find(`.test-${this.id}`);
         this.interactionsBlock = this.rootElement.find('.test-interactions');
 
+        this.nameElement = this.rootElement.find('.name');
+
+        this.nameElement.on('input', (e) => {
+            this.name = this.nameElement.text();
+        });
         this.addInteractionBtn = this.rootElement.find('.addInteractionBtn');
         console.log(this.rootElement);
         this.addInteractionBtn.click( () => {
@@ -46,7 +65,7 @@ class Test {
         });
 
         // create first interaction
-        this.addInteraction();
+        //this.addInteraction();
     }
 
     clearPreviousTestResults() {
@@ -101,13 +120,21 @@ class Test {
             .then((finalResult) => {
                 if (finalResult && finalResult.expectingSpeech === true) {
                         this.interactionsBlock.append(`<div class='error bubble'><i class="fas fa-exclamation-triangle"></i> Alexa expected you to respond, but you didn't provide a response.</div>`);
-                            return Promise.reject();
-                        return Promise.reject('NOT_ENOUGH_INTERACTIONS');
+
+                            return Promise.reject('NOT_ENOUGH_INTERACTIONS');
                 } else {
 
                             return Promise.resolve();
                 }
             });
+    }
+
+    toObject() {
+        return {
+            id: this.id,
+            name: this.name,
+            testInteractions: this.testInteractions.map( (testInteraction) => testInteraction.toObject() )
+        };
     }
 }
 

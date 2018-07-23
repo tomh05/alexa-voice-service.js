@@ -3,13 +3,14 @@ import $ from 'jquery';
 import Response from './response';
 
 class TestInteraction {
-    constructor(id) {
-        this.id = id;
+    constructor(options) {
+        this.id = options.id;
         this.isRecording = false;
         this.hasAudio = false;
         this.recordButtonText = '<i class="fas fa-microphone"></i> Record using Mic';
-        this.inputSpeechData = null;
+        this.inputSpeechData = options.speech ? this.stringToAudioData(options.speech) : null;
         this.responses = [];
+        this.name = options.name ? options.name : `Interaction_${this.id}`;
     }
 
     createDomElements(target) {
@@ -17,7 +18,7 @@ class TestInteraction {
             <div class="test-interaction-block test-interaction-${this.id}">
             <div class="outgoing bubble">
             <div class="header">
-                <h2 contentEditable="true">Interaction_${this.id}</h2>
+                <h2 class="name" contentEditable="true">${this.name}</h2>
                 <span class="hint">(click to rename)</span>
             </div>
             <p><button class="recordButton">${this.recordButtonText}</button>
@@ -35,6 +36,13 @@ class TestInteraction {
         this.recordButton = this.rootElement.find('.recordButton');
         this.responseDiv = this.rootElement.find('.responses');
         this.header = this.rootElement.find('.header');
+        this.outgoingBubble = this.rootElement.find('.outgoing');
+
+        this.nameElement = this.rootElement.find('.name');
+
+        this.nameElement.on('input', (e) => {
+            this.name = this.nameElement.text();
+        });
 
         this.recordButton.click( () => {
             if (!this.isRecording) {
@@ -95,10 +103,10 @@ class TestInteraction {
         this.responseDiv.html('');
     }
 
-    addResponse(payload, audio) {
+    addResponse(directive, audio) {
         console.log('adding response');
         const newId = this.responses.length;
-        const newResponse = new Response(newId, payload, audio);
+        const newResponse = new Response(newId, directive, audio);
         newResponse.createDomElements(this.responseDiv);
         this.responses.push(newResponse);
     }
@@ -106,7 +114,7 @@ class TestInteraction {
     cleanupPreviousRun() {
         this.deleteAllResponses();
         this.rootElement.removeClass('skipped');
-        this.header.addClass('loading');
+        this.outgoingBubble.addClass('loading');
     }
 
     runInteraction() {
@@ -114,6 +122,7 @@ class TestInteraction {
 
         this.cleanupPreviousRun();
 
+        console.log('sending speech data', this.inputSpeechData);
         return avs.sendAudio(this.inputSpeechData)
             .then(({xhr, response}) => {
 
@@ -184,6 +193,8 @@ class TestInteraction {
                             console.log('directive is', directive);
                             if (directive.header.name === 'Play') {
                                 console.log('got play request');
+
+                                this.addResponse(directive, audio);
                                 const stream = directive.payload.audioItem.stream;
                                 //streams.forEach(stream => {
                                     const streamUrl = stream.url;
@@ -231,7 +242,7 @@ class TestInteraction {
                  */
                 }
 
-                this.header.removeClass('loading');
+                this.outgoingBubble.removeClass('loading');
                 return {expectingSpeech: expectingSpeech };
             })
             .catch(error => {
@@ -239,10 +250,26 @@ class TestInteraction {
             });
     }
 
+    audioDataToString(audio)  {
+        return String.fromCharCode.apply(null, new Uint8Array(audio));
+    }
 
+    stringToAudioData(string)  {
+        const buf = new ArrayBuffer(string.length); // *2, 2 bytes for each char
+        const bufView = new Uint8Array(buf);
+        for (var i=0, strLen=string.length; i < strLen; i++) {
+            bufView[i] = string.charCodeAt(i);
+        }
+        return new DataView(buf);
+    }
 
-
-
+    toObject() {
+        return {
+            id: this.id,
+            name: this.name,
+            speech: this.audioDataToString(this.inputSpeechData.buffer)
+        };
+    }
 }
 
 
