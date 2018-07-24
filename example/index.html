@@ -13,25 +13,14 @@
 <body>
   <h1>Alexa Voice Service demo</h1>
   <p>Try asking thing like: "What time is it?" or "Tell me the news".</p>
-  <button id="login">Login</button>
-  <button id="logout" disabled>Logout</button>
-  <button id="setLanguage" >Set Language</button>
-  <button id="startRecording" disabled>Start recording</button>
-  <button id="stopRecording" disabled>Stop recording</button>
-  <input id="audioFileSelector" type="file" />
-  <button id="stopAudio" disabled>Stop audio</button>
-  <button id="pauseAudio" disabled>Pause audio</button>
-  <button id="playAudio" disabled>Play/Resume audio</button>
-  <button id="replayAudio" disabled>Replay audio</button>
-
-  <ul id="log"></ul>
-  <ul id="audioLog"></ul>
 
   <div id="control-bar">
-      <button id="runAll"><i class="fas fa-vial"></i><i class="fas fa-vial"></i> Run all</button>
+      <button id="login"><i class="fas fa-unlock"></i> Login</button>
+      <button id="logout" disabled><i class="fas fa-lock"></i> Logout</button>
       <button id="save"><i class="fas fa-download"></i> Save</button>
       <button id="load"><i class="fas fa-upload"></i> Load</button>
       <input type="file" accept="application/json" style="position:fixed;top:-1000px;" id="upload-file">
+      <button id="runAll"><i class="fas fa-vial"></i><i class="fas fa-vial"></i> Run all</button>
   </div>
   <div id="test-blocks">
   </div>

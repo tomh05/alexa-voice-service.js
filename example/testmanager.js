@@ -5,7 +5,7 @@ import { saveAs } from 'file-saver/FileSaver';
 
 
 class TestManager {
-    constructor(options = {}) {
+    constructor() {
         this.tests = [];
         this.testManagerDiv = $('#test-blocks');
         console.log('testmanagerdiv is', this.testManagerDiv);
@@ -29,14 +29,14 @@ class TestManager {
         });
 
         $('#upload-file').change(() => {
-        console.log('uploading');
+            console.log('uploading');
             this.importFromUpload();
         });
     }
 
     exportToDownload() {
-        const blob = new Blob([JSON.stringify(this.toObject())], {type: "application/json"});
-        saveAs(blob, "test_suite.json");
+        const blob = new Blob([JSON.stringify(this.toObject())], {type: 'application/json'});
+        saveAs(blob, 'test_suite.json');
     }
 
     importFromUpload() {
@@ -88,28 +88,22 @@ class TestManager {
 
         return this.tests.reduce( (previousTest, currentTest, index) => {
             console.log('previousTest is', previousTest);
-            return previousTest.then( (result) => 
-                {
-                    console.log('result is', result);
-                    return currentTest.run();
-
-
-
-                }).catch( (error) => {
-                    //currentTest.rootElement.after(`<div class='error'><i class="fas fa-exclamation-triangle"></i> ${error}</div>`);
-                    for (let i = index + 1; i < this.tests.length; i++) {
-                        this.tests[i].markSkipped();
-                    }
-                    throw error;
-                });
-
+            return previousTest.then( (result) => {
+                console.log('result is', result);
+                return currentTest.run();
+            }).catch( (error) => {
+                //currentTest.rootElement.after(`<div class='error'><i class="fas fa-exclamation-triangle"></i> ${error}</div>`);
+                for (let i = index + 1; i < this.tests.length; i++) {
+                    this.tests[i].markSkipped();
+                }
+                throw error;
+            });
         }, Promise.resolve())
             .then(() => {
-                console.log("All tests passed");
+                console.log('All tests passed');
             })
             .catch((e) => {
-
-                console.error("failed to run all tests",e);
+                console.error('failed to run all tests', e);
             } );
     }
 

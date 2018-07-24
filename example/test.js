@@ -9,7 +9,7 @@ class Test {
         this.name = options.name ? options.name : `Test_${this.id}`;
         this.createDomElements($('#test-blocks'));
         this.testInteractions = [];
-        
+
         if (options.testInteractions) {
             options.testInteractions.map((interaction) => this.addInteraction(interaction));
         } else {
@@ -39,7 +39,7 @@ class Test {
         this.rootElement.remove();
         this.parent.notifyTestDestroyed(this.id);
     }
-    
+
     notifyInteractionDestroyed(id) {
         // remove the interaction with matching ID from our array
         this.testInteractions.splice(this.testInteractions.findIndex(item => item.id === id), 1);
@@ -67,7 +67,7 @@ class Test {
 
         this.nameElement = this.rootElement.find('.name');
 
-        this.nameElement.on('input', (e) => {
+        this.nameElement.on('input', () => {
             this.name = this.nameElement.text();
         });
         this.addInteractionBtn = this.rootElement.find('.addInteractionBtn');
@@ -113,8 +113,8 @@ class Test {
 
 
         return this.testInteractions.reduce( (previousInteraction, currentInteraction, index) => {
-            return previousInteraction.then( (result) => 
-                {
+            return previousInteraction.then( (result) => {
+                if (result) {
                     if (result.expectingSpeech === true) {
                         // if result includes an ExpectSpeech run next interaction
                         return currentInteraction.runInteraction();
@@ -131,17 +131,22 @@ class Test {
                         console.warn('uncaught result', result);
                     }
 
+                } else {
+                    return Promise.reject('NO_RESPONSE');
+                }
+            })
+                .catch((error) => {
+                    currentInteraction.rootElement.before(`<div class='error bubble'><i class="fas fa-exclamation-triangle"></i>${error}</div>`);
+
                 });
 
         }, Promise.resolve({expectingSpeech: true}))
             .then((finalResult) => {
                 if (finalResult && finalResult.expectingSpeech === true) {
-                        this.interactionsBlock.append(`<div class='error bubble'><i class="fas fa-exclamation-triangle"></i> Alexa expected you to respond, but you didn't provide a response.</div>`);
-
-                            return Promise.reject('NOT_ENOUGH_INTERACTIONS');
+                    this.interactionsBlock.append(`<div class='error bubble'><i class="fas fa-exclamation-triangle"></i> Alexa expected you to respond, but you didn't provide a response.</div>`);
+                    return Promise.reject('NOT_ENOUGH_INTERACTIONS');
                 } else {
-
-                            return Promise.resolve();
+                    return Promise.resolve();
                 }
             });
     }

@@ -42,7 +42,7 @@ class TestInteraction {
 
         this.nameElement = this.rootElement.find('.name');
 
-        this.nameElement.on('input', (e) => {
+        this.nameElement.on('input', () => {
             this.name = this.nameElement.text();
         });
 
@@ -51,7 +51,7 @@ class TestInteraction {
 
                 // disable all record buttons
                 $('.recordButton').attr('disabled', 'disabled');
-                this.recordButton.html('<i class="fas fa-stop"></i> Stop recording'); 
+                this.recordButton.html('<i class="fas fa-stop"></i> Stop recording');
                 this.recordButton.removeAttr('disabled');
                 this.isRecording = true;
                 window.avs.startRecording();
@@ -89,7 +89,7 @@ class TestInteraction {
             reader.onload = (ev) => {
                 return this.processRecording(new DataView(ev.target.result));
             };
-            reader.readAsArrayBuffer(e.target.files[0]);
+            reader.readAsArrayBuffer(file);
         });
 
         this.deleteBtn = this.rootElement.find('.delete');
@@ -97,9 +97,7 @@ class TestInteraction {
             if (confirm('delete interaction?')) {
                 this.destroy();
             }
-
-});
-
+        });
     }
 
     destroy() {
@@ -137,17 +135,27 @@ class TestInteraction {
         this.outgoingBubble.addClass('loading');
     }
 
+    findAudioFromContentId(audioMap, contentId) {
+        contentId = contentId.replace('cid:', '');
+        for (var key in audioMap) {
+            if (key.indexOf(contentId) > -1) {
+                return audioMap[key];
+            }
+        }
+    }
+
+
+
     runInteraction() {
         console.log('running interaction', this.inputSpeechData);
 
         this.cleanupPreviousRun();
 
         console.log('sending speech data', this.inputSpeechData);
-        return avs.sendAudio(this.inputSpeechData)
+        return window.avs.sendAudio(this.inputSpeechData)
             .then(({xhr, response}) => {
 
                 let expectingSpeech = false;
-                var promises = [];
                 var audioMap = {};
                 var directives = [];
 
@@ -175,23 +183,12 @@ class TestInteraction {
                              * seperate them out.
                              */
                             var slicedBody = xhr.response.slice(start, end);
-
-                            //promises.push(avs.player.enqueue(slicedBody));
                             audioMap[multipart.headers['Content-ID']] = slicedBody;
                         } else {
-                            log('unrecognised header:' + multipart.headers['Content-Type']);
+                            console.log('unrecognised header:' + multipart.headers['Content-Type']);
 
                         }
                     });
-
-                    function findAudioFromContentId(contentId) {
-                        contentId = contentId.replace('cid:', '');
-                        for (var key in audioMap) {
-                            if (key.indexOf(contentId) > -1) {
-                                return audioMap[key];
-                            }
-                        }
-                    }
 
                     console.log('directive', directives);
                     directives.forEach(directive => {
@@ -199,7 +196,7 @@ class TestInteraction {
                             if (directive.header.name === 'Speak') {
                                 console.log('got speeech!');
                                 const contentId = directive.payload.url;
-                                const audio = findAudioFromContentId(contentId);
+                                const audio = this.findAudioFromContentId(audioMap, contentId);
                                 if (audio) {
                                     console.log('audio is', audio);
                                     //avs.audioToBlob(audio)
@@ -209,57 +206,17 @@ class TestInteraction {
                                 }
                             }
                         } else if (directive.header.namespace === 'AudioPlayer') {
-                            console.log('got audio player request')
-                            console.log('directive is', directive);
-                            if (directive.header.name === 'Play') {
-                                console.log('got play request');
-
-                                this.addResponse(directive, audio);
-                                const stream = directive.payload.audioItem.stream;
-                                //streams.forEach(stream => {
-                                    const streamUrl = stream.url;
-
-                                    const audio = findAudioFromContentId(streamUrl);
-                                    if (audio) {
-                                        avs.audioToBlob(audio)
-                                            .then(blob => logAudioBlob(blob, 'RESPONSE'));
-                                        //promises.push(avs.player.enqueue(audio));
-                                    } else if (streamUrl.indexOf('http') > -1) {
-                                        const xhr = new XMLHttpRequest();
-                                        //const url = `/parse-m3u?url=${streamUrl.replace(/!.*$/, '')}`;
-                                        /*
-                                        xhr.open('GET', url, true);
-                                        xhr.responseType = 'json';
-                                        xhr.onload = (event) => {
-                                            const urls = event.currentTarget.response;
-
-                                            urls.forEach(url => {
-                                                avs.player.enqueue(url);
-                                            });
-                                        };
-                                        xhr.send();
-                                        */
-                                    }
-                                //});
-                            }
+                            //if (directive.header.name === 'Play') {
+                            this.addResponse(directive, null);
+                            //}
                         } else if (directive.header.namespace === 'SpeechRecognizer') {
                             if (directive.header.name === 'ExpectSpeech') {
-                                const timeout = directive.payload.timeoutInMilliseconds;
                                 expectingSpeech = true;
                             }
                         } else {
-                            console.warn('unhandled directive:', directive); 
+                            console.warn('unhandled directive:', directive);
                         }
                     });
-
-                    /*
-                 if (promises.length) {
-                     Promise.all(promises)
-                         .then(() => {
-                             avs.player.playQueue();
-                         });
-                 }
-                 */
                 }
 
                 this.outgoingBubble.removeClass('loading');
@@ -267,12 +224,12 @@ class TestInteraction {
             })
             .catch(error => {
                 console.error(error);
+                this.outgoingBubble.removeClass('loading');
+                throw error;
             });
     }
 
     audioDataToString(audio)  {
-        //return String.fromCharCode.apply(null, new Uint8Array(audio));
-        //return new TextDecoder('utf-8').decode(audio);
         let binaryString = '',
             bytes = new Uint8Array(audio),
             length = bytes.length;
@@ -283,9 +240,6 @@ class TestInteraction {
     }
 
     stringToAudioData(string)  {
-        //let testfoo = new TextEncoder('utf-8').encode(string));
-        //return new DataView(new TextEncoder('utf-8').encode(string));
-
         const buf = new ArrayBuffer(string.length); // *2, 2 bytes for each char
         const bufView = new Uint8Array(buf);
         for (var i=0, strLen=string.length; i < strLen; i++) {
@@ -302,8 +256,5 @@ class TestInteraction {
         };
     }
 }
-
-
-
 
 module.exports = TestInteraction;
