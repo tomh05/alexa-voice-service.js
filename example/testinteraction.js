@@ -76,6 +76,10 @@ class TestInteraction {
             }
         });
 
+        if (this.inputSpeechData) {
+            this.playButton.removeAttr('disabled');
+        }
+
 
         this.uploadAudio = this.rootElement.find('.uploadAudio');
 
@@ -101,7 +105,7 @@ class TestInteraction {
     destroy() {
         this.deleteAllResponses();
         this.rootElement.remove();
-        this.parent.notifyDestroyed(this.id);
+        this.parent.notifyInteractionDestroyed(this.id);
     }
 
     processRecording(recordedData) {
@@ -267,10 +271,21 @@ class TestInteraction {
     }
 
     audioDataToString(audio)  {
-        return String.fromCharCode.apply(null, new Uint8Array(audio));
+        //return String.fromCharCode.apply(null, new Uint8Array(audio));
+        //return new TextDecoder('utf-8').decode(audio);
+        let binaryString = '',
+            bytes = new Uint8Array(audio),
+            length = bytes.length;
+        for (var i = 0; i < length; i++) {
+            binaryString += String.fromCharCode(bytes[i]);
+        }
+        return binaryString;
     }
 
     stringToAudioData(string)  {
+        //let testfoo = new TextEncoder('utf-8').encode(string));
+        //return new DataView(new TextEncoder('utf-8').encode(string));
+
         const buf = new ArrayBuffer(string.length); // *2, 2 bytes for each char
         const bufView = new Uint8Array(buf);
         for (var i=0, strLen=string.length; i < strLen; i++) {

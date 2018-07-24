@@ -16,6 +16,7 @@
     "body-parser": "^1.15.0",
     "cors": "^2.7.1",
     "express": "^4.13.4",
+    "file-saver": "^1.3.8",
     "http-message-parser": "0.0.20",
     "jquery": "^3.3.1",
     "multer": "^1.1.0",

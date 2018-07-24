@@ -3,10 +3,11 @@ const TestInteraction = require('./testinteraction');
 import $ from 'jquery';
 
 class Test {
-    constructor(rootDomElement, options) {
+    constructor(parent, options) {
+        this.parent = parent;
         this.id = options.id;
         this.name = options.name ? options.name : `Test_${this.id}`;
-        this.createDomElements(rootDomElement);
+        this.createDomElements($('#test-blocks'));
         this.testInteractions = [];
         
         if (options.testInteractions) {
@@ -32,8 +33,14 @@ class Test {
         newInteraction.createDomElements(this.interactionsBlock);
         this.testInteractions.push(newInteraction);
     }
+
+    destroy() {
+        this.testInteractions = [];
+        this.rootElement.remove();
+        this.parent.notifyTestDestroyed(this.id);
+    }
     
-    notifyDestroyed(id) {
+    notifyInteractionDestroyed(id) {
         // remove the interaction with matching ID from our array
         this.testInteractions.splice(this.testInteractions.findIndex(item => item.id === id), 1);
     }
@@ -64,7 +71,6 @@ class Test {
             this.name = this.nameElement.text();
         });
         this.addInteractionBtn = this.rootElement.find('.addInteractionBtn');
-        console.log(this.rootElement);
         this.addInteractionBtn.click( () => {
             this.addInteraction();
         });
@@ -74,8 +80,13 @@ class Test {
             this.run();
         });
 
-        // create first interaction
-        //this.addInteraction();
+        this.deleteBtn = this.rootElement.find('.delete');
+        this.deleteBtn.click( () => {
+            if (confirm('delete interaction?')) {
+                this.destroy();
+            }
+        });
+
     }
 
     clearPreviousTestResults() {
@@ -102,12 +113,8 @@ class Test {
 
 
         return this.testInteractions.reduce( (previousInteraction, currentInteraction, index) => {
-            console.log('previousInteraction is', previousInteraction);
             return previousInteraction.then( (result) => 
                 {
-                    console.log('previous interaction returned', result);
-                    console.log('currentInteraciton is', currentInteraction);
-
                     if (result.expectingSpeech === true) {
                         // if result includes an ExpectSpeech run next interaction
                         return currentInteraction.runInteraction();
@@ -121,7 +128,7 @@ class Test {
                         }
                         return Promise.reject('ALEXA_ENDED_CONVERSATION');
                     } else {
-                        console.log('uncaught');
+                        console.warn('uncaught result', result);
                     }
 
                 });

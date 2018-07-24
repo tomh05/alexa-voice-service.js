@@ -1,6 +1,8 @@
 'use strict';
 const Test = require('./test');
 import $ from 'jquery';
+import { saveAs } from 'file-saver/FileSaver';
+
 
 class TestManager {
     constructor(options = {}) {
@@ -33,15 +35,8 @@ class TestManager {
     }
 
     exportToDownload() {
-        const downloadLink = document.createElement('a');
-        console.log('prep saving');
-        console.log('saving object', this.toObject());
-        downloadLink.href= 'data:text/plain;charset=UTF-8,' + encodeURIComponent(JSON.stringify(this.toObject()));
-        const fileName = 'test suite';
-        downloadLink.download= fileName ? fileName.replace(/\?/g,'') + '.json' : 'saved_poll_layout.json';
-        downloadLink.click();
-        downloadLink.remove();
-
+        const blob = new Blob([JSON.stringify(this.toObject())], {type: "application/json"});
+        saveAs(blob, "test_suite.json");
     }
 
     importFromUpload() {
@@ -71,9 +66,14 @@ class TestManager {
             };
         }
 
-        const newTest = new Test(this.testManagerDiv, options);
+        const newTest = new Test(this, options);
         //newTest.createDomElements(this.testManagerDiv);
         this.tests.push(newTest);
+    }
+
+    notifyTestDestroyed(id) {
+        // remove the test with matching ID from our array
+        this.tests.splice(this.tests.findIndex(item => item.id === id), 1);
     }
 
     runAll() {
@@ -121,6 +121,8 @@ class TestManager {
     }
 
     fromObject(loadedData) {
+        this.tests = [];
+        this.testManagerDiv.html('');
         for (let i=0; i< loadedData.tests.length; i++) {
             this.addTest(loadedData.tests[i]);
         }
