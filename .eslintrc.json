@@ -3,6 +3,7 @@
         "es6": true,
         "node": true,
         "jest": true,
+        "amd": true,
         "browser": true
     },
     "extends": "eslint:recommended",

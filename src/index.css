@@ -129,10 +129,17 @@ button.delete {
     border-radius: 5px;
     display: inline-block;
     margin: 10px;
-    max-width: 30%;
     padding: 10px;
     vertical-align: middle;
     word-wrap: break-word;
+}
+
+.response-block .waveform {
+}
+
+.response-block .play {
+    width: 100%;
+
 }
 
 .bubble {

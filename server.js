@@ -30,7 +30,8 @@ app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use('/', express.static(__dirname));
+app.use('/', express.static(`${__dirname}/build`));
+app.use('/', express.static(`${__dirname}/src`));
 
 app.get('/authresponse', (req, res) => {
     res.redirect(301, `/authresponse.html?${qs.stringify(req.query)}`);

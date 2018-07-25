@@ -1,11 +1,11 @@
 'use strict';
 
 function dataViewToBlob(dataView) {
-  const blob = new Blob([dataView], {
-    type: 'audio/wav'
-  });
+    const blob = new Blob([dataView], {
+        type: 'audio/wav'
+    });
 
-  return blob;
+    return blob;
 }
 
 module.exports = dataViewToBlob;

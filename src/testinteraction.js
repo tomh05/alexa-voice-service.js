@@ -155,11 +155,12 @@ class TestInteraction {
         return window.avs.sendAudio(this.inputSpeechData)
             .then(({xhr, response}) => {
 
+                console.log('response',response);
                 let expectingSpeech = false;
                 var audioMap = {};
                 var directives = [];
 
-                if (response.multipart.length) {
+                if (response.multipart && response.multipart.length) {
                     response.multipart.forEach(multipart => {
                         let body = multipart.body;
                         if (multipart.headers && multipart.headers['Content-Type'].includes('application/json')) {

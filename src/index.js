@@ -1,6 +1,6 @@
 'use strict';
 
-const AVS = require('../');
+const AVS = require('./lib/AVS');
 const TestManager = require('./testManager');
 import $ from 'jquery';
 
