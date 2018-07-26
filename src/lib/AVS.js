@@ -856,6 +856,7 @@ class AVS {
 
             xhr.onerror = (error) => {
                 this._log(error);
+                if (!error.message) error = new Error(`Couldn't send request to Alexa Voice Service. Is your internet connection okay?`);
                 reject(error);
             };
 

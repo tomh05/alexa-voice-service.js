@@ -6,25 +6,23 @@
   <title>Alexa Voice Service demo</title>
   <link rel="stylesheet" href="./index.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" integrity="sha384-O8whS3fhG2OnA5Kas0Y9l3cfpmYjapjI0E4theH4iuMD+pLhbf6JI0jIMfYcK3yZ" crossorigin="anonymous">
-
   <script src="./index.bundle.js"></script>
-
 </head>
 <body>
-  <h1>Alexa Voice Service demo</h1>
-  <p>Try asking thing like: "What time is it?" or "Tell me the news".</p>
-
+    <div id="top-header">
+    <h1>Fauxlexa <span style="font-size:0.5em">(faux-lexa)</span></h1>
+    </div>
   <div id="control-bar">
       <button id="login"><i class="fas fa-unlock"></i> Login</button>
       <button id="logout" disabled><i class="fas fa-lock"></i> Logout</button>
       <button id="save"><i class="fas fa-download"></i> Save</button>
       <button id="load"><i class="fas fa-upload"></i> Load</button>
       <input type="file" accept="application/json" style="position:fixed;top:-1000px;" id="upload-file">
-      <button id="runAll"><i class="fas fa-vial"></i><i class="fas fa-vial"></i> Run all</button>
+      <button id="runAll"><i class="fas fa-vial"></i><i class="fas fa-vial"></i> Run All Tests</button>
   </div>
   <div id="test-blocks">
   </div>
-  <button id="addTest"><i class="fas fa-plus-circle"></i> add test</button>
+  <button id="addTest"><i class="fas fa-plus-circle"></i> Add Test</button>
 </body>
 </html>
 

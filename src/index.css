@@ -77,7 +77,7 @@ body {
 
 button {
     border-radius: 5px;
-    padding: 10px;
+    padding: 12px;
     font-size: 0.9em;
 
 }
@@ -146,8 +146,6 @@ button.delete {
 
 }
 
-
-
 .response-block {
     background-color: #EEEEEE;
     border-radius: 5px;
@@ -156,6 +154,11 @@ button.delete {
     padding: 10px;
     vertical-align: middle;
     word-wrap: break-word;
+}
+
+.response-block .waveform {
+    max-width: 100%;
+
 }
 
 
@@ -248,7 +251,7 @@ button.delete {
     display: inline-block;
     border: 2px dashed rgba(0, 0, 0, 0.3);
     background: #DDD;
-    padding: 8px;
+    padding: 10px;
     color: #444;
     font-size: 0.9em;
 }
