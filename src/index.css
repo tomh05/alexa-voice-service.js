@@ -123,6 +123,30 @@ button.delete {
     color: white;
 }
 
+.test-interactions .audio-player-holder {
+    display: inline-block;
+    margin-left: 32px;
+}
+
+.audio-player-holder .audio-player {
+    border: #eeee 2px solid;
+    padding: 4px
+}
+
+
+.test-interactions .outgoing .waveform {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.audio-player .duration {
+    float: right;
+    font-size: 0.8em;
+    color: #999;
+
+}
+
+
 
 .response-block {
     background-color: #EEEEEE;
@@ -134,8 +158,6 @@ button.delete {
     word-wrap: break-word;
 }
 
-.response-block .waveform {
-}
 
 .response-block .play {
     width: 100%;
@@ -170,7 +192,6 @@ button.delete {
     margin-top: -12px;
     margin-right: -24px;
 }
-
 
 
 .hint {
@@ -247,4 +268,6 @@ border-style: solid;}
 .dropzone .dz-message {
     text-align: center;
 }
+
+
 

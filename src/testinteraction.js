@@ -2,6 +2,7 @@
 import $ from 'jquery';
 import Response from './response';
 import Dropzone from 'dropzone';
+import AudioPlayer from './audioPlayer';
 
 class TestInteraction {
     constructor(parent, options) {
@@ -19,6 +20,7 @@ class TestInteraction {
         target.append(`
             <div class="test-interaction-block test-interaction-${this.id}">
             <div class="outgoing bubble">
+            <button class="delete"><i class="fas fa-trash-alt"></i></button>
             <div class="header">
                 <h2 class="name" contentEditable="true">${this.name}</h2>
                 <span class="hint">(click to rename)</span>
@@ -26,9 +28,8 @@ class TestInteraction {
             <div><button class="recordButton">${this.recordButtonText}</button>
             or
             <div class="dropzone"> </div>
+            <div class="audio-player-holder"></div>
             </div>
-            <button class="playButton" disabled><i class="fas fa-play"></i> Play audio</button>
-            <button class="delete"><i class="fas fa-trash-alt"></i></button>
             </div>
             <div class="responses bubble"> </div>
             </div>
@@ -40,6 +41,8 @@ class TestInteraction {
         this.responseDiv = this.rootElement.find('.responses');
         this.header = this.rootElement.find('.header');
         this.outgoingBubble = this.rootElement.find('.outgoing');
+
+        this.audioPlayerHolder = this.rootElement.find('.audio-player-holder');
 
         this.nameElement = this.rootElement.find('.name');
 
@@ -67,6 +70,7 @@ class TestInteraction {
             }
         });
 
+        /*
         this.playButton = this.rootElement.find('.playButton');
 
         this.playButton.click( () => {
@@ -80,6 +84,7 @@ class TestInteraction {
         if (this.inputSpeechData) {
             this.playButton.removeAttr('disabled');
         }
+        */
 
         const self = this;
         this.dropzoneElement = this.rootElement.find('.dropzone');
@@ -124,7 +129,12 @@ class TestInteraction {
     processRecording(recordedData) {
         console.log('processing recording', recordedData);
         this.inputSpeechData = recordedData;
-        this.playButton.removeAttr('disabled');
+        //this.playButton.removeAttr('disabled');
+
+        this.audioPlayerHolder.html('');
+        this.audioPlayer = new AudioPlayer(this.inputSpeechData, { height: 40, playButtonFirst: true });
+        this.audioPlayer.createDomElements(this.audioPlayerHolder);
+
     }
 
     markSkipped() {
