@@ -811,7 +811,6 @@ class AVS {
                 reject( new Error('No audio data to send'));
             };
 
-            console.log('sending audio');
             const xhr = new XMLHttpRequest();
             const url = 'https://avs-alexa-eu.amazon.com/v20160207/events';
 
@@ -820,13 +819,8 @@ class AVS {
             xhr.onload = () => {
                 const buffer = new Buffer(xhr.response);
 
-                console.log('inner response',xhr.response);
-                console.log('status',xhr);
                 if (xhr.status === 200) {
-                    console.log('got 200');
-                    console.log('buffer',buffer);
                     const parsedMessage = httpMessageParser(buffer);
-                    console.log('parsed message', parsedMessage);
                     resolve({xhr, response: parsedMessage});
                 } else {
                     let error = new Error('An error occured with request.');
@@ -837,7 +831,7 @@ class AVS {
                     }
 
                     if (!xhr.response.byteLength) {
-                        error = new Error('Empty response.');
+                        error = new Error('Alexa returned an empty response.');
                     } else {
                         try {
                             response = JSON.parse(arrayBufferToString(buffer));

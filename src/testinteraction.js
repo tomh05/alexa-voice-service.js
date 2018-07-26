@@ -1,6 +1,7 @@
 'use strict';
 import $ from 'jquery';
 import Response from './response';
+import Dropzone from 'dropzone';
 
 class TestInteraction {
     constructor(parent, options) {
@@ -22,10 +23,10 @@ class TestInteraction {
                 <h2 class="name" contentEditable="true">${this.name}</h2>
                 <span class="hint">(click to rename)</span>
             </div>
-            <p><button class="recordButton">${this.recordButtonText}</button>
+            <div><button class="recordButton">${this.recordButtonText}</button>
             or
-            <input class="uploadAudio" type="file" />
-            </p>
+            <div class="dropzone"> </div>
+            </div>
             <button class="playButton" disabled><i class="fas fa-play"></i> Play audio</button>
             <button class="delete"><i class="fas fa-trash-alt"></i></button>
             </div>
@@ -80,16 +81,30 @@ class TestInteraction {
             this.playButton.removeAttr('disabled');
         }
 
-
-        this.uploadAudio = this.rootElement.find('.uploadAudio');
-
-        this.uploadAudio.change((e) => {
-            const file = e.target.files[0]; // FileList object
-            var reader = new FileReader();
-            reader.onload = (ev) => {
-                return this.processRecording(new DataView(ev.target.result));
-            };
-            reader.readAsArrayBuffer(file);
+        const self = this;
+        this.dropzoneElement = this.rootElement.find('.dropzone');
+        this.dropzone = new Dropzone(this.dropzoneElement[0],{
+            url: '/not-used',
+            dictDefaultMessage: '<i class="far fa-file-audio"></i> Upload a wav file',
+            acceptedFiles: 'audio/wav',
+            init: function() {
+                // override 'file added' event to check its type and process it as a recording
+                this.on("addedfile", function() {
+                    if (this.files[0]!=null) {
+                        const file = this.files[0];
+                        if (file.type === 'audio/wav') {
+                            var reader = new FileReader();
+                            reader.onload = (ev) => {
+                                return self.processRecording(new DataView(ev.target.result));
+                            };
+                            reader.readAsArrayBuffer(file);
+                        } else {
+                            alert('File must be WAV, 16kHz, single channel, 16bit Linear PCM, little endian.')
+                        }
+                        this.removeFile(this.files[0]);
+                    }
+                });
+            }
         });
 
         this.deleteBtn = this.rootElement.find('.delete');
