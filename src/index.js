@@ -67,6 +67,7 @@ $(document).ready(() => {
         loginBtn.disabled = true;
         logoutBtn.disabled = false;
         console.log('Token Set');
+        avs.setLanguage();
     });
 
     /*

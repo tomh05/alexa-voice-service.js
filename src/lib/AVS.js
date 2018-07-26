@@ -803,7 +803,14 @@ class AVS {
 
 
     sendAudio (dataView) {
+
+
         return new Promise((resolve, reject) => {
+
+            if (!dataView) {
+                reject( new Error('No audio data to send'));
+            };
+
             console.log('sending audio');
             const xhr = new XMLHttpRequest();
             const url = 'https://avs-alexa-eu.amazon.com/v20160207/events';
