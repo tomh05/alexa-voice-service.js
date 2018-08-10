@@ -1,7 +1,7 @@
 # Fauxlexa
 A testing tool for Alexa.
 
-## ❓ What is it?
+## ❓What is it?
 Fauxlexa allows testers to create repeatable tests on a simulated Alexa device. It uses Alexa Voice Service to send and receive audio files, in a similar manner to https://echosim.io/.
 
 It runs entirely in your browser and calls AVS directly, so there is no need to have a seperate test server.
